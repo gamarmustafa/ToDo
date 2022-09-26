@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace 'com.example.todo'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.todo"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -32,6 +32,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 
