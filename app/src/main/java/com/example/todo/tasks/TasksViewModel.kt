@@ -1,10 +1,13 @@
 package com.example.todo.tasks
 
+import android.app.Dialog
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.todo.data.Task
 import com.example.todo.data.TaskDao
+import com.example.todo.databinding.DialogAddEditBinding
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,6 +57,12 @@ class TasksViewModel @Inject constructor(private val taskDao: TaskDao) : ViewMod
         viewModelScope.launch {
             taskDao.delete(task)
             tasksEventChannel.send(TasksEvent.ShowUndoDeleteTaskMessage(task))
+        }
+    }
+
+    fun addTask(taskName:String, importance:Boolean){
+        viewModelScope.launch{
+            taskDao.insert(Task(name = taskName,important = importance))
         }
     }
 

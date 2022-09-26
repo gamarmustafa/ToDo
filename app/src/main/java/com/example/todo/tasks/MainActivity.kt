@@ -1,8 +1,11 @@
 package com.example.todo.tasks
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -13,9 +16,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.todo.R
 import com.example.todo.data.Task
 import com.example.todo.databinding.ActivityMainBinding
+import com.example.todo.databinding.DialogAddEditBinding
 import com.example.todo.util.onQueryTextChanged
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
@@ -44,10 +49,47 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                 }
             }).attachToRecyclerView(rvTasks)
 
+            fabAddTasks.setOnClickListener {
+                val addDialog = Dialog(this@MainActivity,R.style.Theme_Dialog)
+                addDialog.setCanceledOnTouchOutside(true)
+                val addBinding= DialogAddEditBinding.inflate(layoutInflater)
+                addDialog.setContentView(addBinding.root)
+                //addBinding?.etAddNote?.showKeyboard()
+                addBinding.tvAdd.setOnClickListener {
+
+                    val taskText = addBinding.etAddNote.text.toString()
+                    val importance = addBinding.checkBoxImportant.isChecked
+                    if (taskText.isNotEmpty()) {
+                        lifecycleScope.launch {
+                            viewModel.addTask(taskText,importance)
+                            Toast.makeText(applicationContext, "Task added", Toast.LENGTH_SHORT).show()
+                            addDialog.dismiss()
+                        }
+                    } else {
+                        Toast.makeText(applicationContext, "A task cannot be blank!", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+                addBinding.tvCancel.setOnClickListener {
+                    addDialog.dismiss()
+                }
+                addDialog.show()
+            }
         }
 
         viewModel.tasks.observe(this) {
+            if(it.isNotEmpty()){
+                binding.rvTasks.visibility = View.VISIBLE
+                binding.tvNoTask.visibility = View.GONE
+                binding.ivNoTask.visibility = View.GONE
+            }
+            else{
+                binding.rvTasks.visibility = View.GONE
+                binding.tvNoTask.visibility = View.VISIBLE
+                binding.ivNoTask.visibility = View.VISIBLE
+            }
             tasksAdapter.submitList(it)
+
         }
         lifecycleScope.launchWhenStarted {
             // launchWhenStarted makes the scope smaller, because instead of getting cancelled on onDestroy()
@@ -64,6 +106,11 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                 }
             }
         }
+        //Add/Edit part
+
+
+
+
     }
 
     //Item OnClicks

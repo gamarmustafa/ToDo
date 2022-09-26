@@ -3,26 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
-
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="16dp"
         app:cardCornerRadius="10dp"
         app:cardElevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:padding="10dp"
-            android:focusableInTouchMode="true"
-            android:focusable="true"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:padding="10dp">
 
             <TextView
                 android:id="@+id/tvTitle"
@@ -40,16 +39,29 @@
 
             <EditText
 
-                android:backgroundTint="@color/red"
                 android:id="@+id/etAddNote"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
+                android:backgroundTint="@color/red"
                 android:fontFamily="@font/saira_condensed_regular"
                 android:hint="Enter Task"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+            <CheckBox
+                android:id="@+id/check_box_important"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:buttonTint="@drawable/check_box_color"
+                android:fontFamily="@font/saira_condensed_medium"
+                android:text="Important task"
+                android:textColor="@color/gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/etAddNote" />
 
 
             <TextView
