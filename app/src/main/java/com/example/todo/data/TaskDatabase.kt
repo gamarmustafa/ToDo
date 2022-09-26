@@ -25,9 +25,12 @@ abstract class TaskDatabase : RoomDatabase() {
             val dao = database.get().taskDao()
 
             applicationScope.launch {
-                dao.insert(Task("Welcome to the To Do app!",important = true))
+
+                dao.insert(Task("Welcome to the To Do app!", important = true))
                 dao.insert(Task("You can swipe in either direction to delete the task"))
                 dao.insert(Task("Tasks with '!' sign shows prioritized tasks"))
+
+
             }
 
         }
