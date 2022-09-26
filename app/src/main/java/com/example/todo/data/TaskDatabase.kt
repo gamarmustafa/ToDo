@@ -30,7 +30,6 @@ abstract class TaskDatabase : RoomDatabase() {
                 dao.insert(Task("You can swipe in either direction to delete the task"))
                 dao.insert(Task("Tasks with '!' sign shows prioritized tasks"))
 
-
             }
 
         }

@@ -2,11 +2,16 @@ package com.example.todo.tasks
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.todo.data.Task
 import com.example.todo.data.TaskDao
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,6 +21,11 @@ class TasksViewModel @Inject constructor(private val taskDao: TaskDao) : ViewMod
 
     val sortOrder = MutableStateFlow(SortOrder.BY_DATE) //default value
     val hideCompleted = MutableStateFlow(false)   //default value
+
+    private  val tasksEventChannel = Channel<TasksEvent>()
+    //if we expose the channel,activity can put something in it
+    //that's why we convert it into flow
+    val tasksEvent = tasksEventChannel.receiveAsFlow()
 
     private val taskFlow = combine(searchQuery, sortOrder, hideCompleted) { //combine()  passes all there latest values
         query,sortOrder,hideCompleted ->
@@ -28,6 +38,35 @@ class TasksViewModel @Inject constructor(private val taskDao: TaskDao) : ViewMod
         taskDao.getTasks(query,sortOrder,hideCompleted) // we could also write it.first, it.second and etc.
     }
     val tasks = taskFlow.asLiveData()
+
+    //onClicks
+    fun onTaskClicked(task:Task){
+    }
+    fun onTaskChecked(task: Task, isChecked:Boolean){
+        viewModelScope.launch {
+            //if we modify old item, DiffUtil will not pick up the changes
+            taskDao.update(task.copy(completed = isChecked))
+        }
+    }
+
+    //Swipe
+    fun onTaskSwiped(task: Task){
+        viewModelScope.launch {
+            taskDao.delete(task)
+            tasksEventChannel.send(TasksEvent.ShowUndoDeleteTaskMessage(task))
+        }
+    }
+
+
+    fun onUndoDeleteClick(task: Task){
+        viewModelScope.launch{
+            taskDao.insert(task)
+        }
+    }
+
+    sealed class TasksEvent{
+        data class ShowUndoDeleteTaskMessage(val task: Task):TasksEvent()
+    }
 
 }
 
