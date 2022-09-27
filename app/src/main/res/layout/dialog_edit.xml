@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:fontFamily="@font/saira_condensed_medium"
-                android:text="Add Task"
+                android:text="Edit Task"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -45,7 +45,7 @@
                 android:layout_marginStart="4dp"
                 android:backgroundTint="@color/red"
                 android:fontFamily="@font/saira_condensed_regular"
-                android:hint="Enter Task"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle" />
@@ -54,34 +54,65 @@
                 android:id="@+id/check_box_important"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="-7dp"
                 android:buttonTint="@drawable/check_box_color"
                 android:fontFamily="@font/saira_condensed_medium"
                 android:text="Important task"
                 android:textColor="@color/gray"
+                android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.55"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/etAddNote" />
 
+            <TextView
+                android:layout_marginTop="-5dp"
+                android:id="@+id/dummy_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/saira_condensed_medium"
+                android:text="Created at:"
+                android:textColor="@android:color/darker_gray"
+                app:layout_constraintEnd_toStartOf="@+id/tvUpdate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/check_box_important" />
 
             <TextView
-                android:id="@+id/tvAdd"
+                android:id="@+id/created"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/saira_condensed_medium"
+                android:text="2022.10.01"
+                android:textColor="@android:color/darker_gray"
+                app:layout_constraintEnd_toStartOf="@+id/tvUpdate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dummy_tv" />
+
+
+            <TextView
+                android:id="@+id/tvUpdate"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginTop="28dp"
                 android:fontFamily="@font/saira_condensed_medium"
                 android:foreground="?attr/selectableItemBackground"
                 android:gravity="center"
                 android:padding="10dp"
-                android:text="ADD"
+                android:text="UPDATE"
                 android:textColor="@color/red"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@id/tvCancel"
                 app:layout_constraintTop_toBottomOf="@id/etAddNote" />
 
             <TextView
+
                 android:id="@+id/tvCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginTop="28dp"
                 android:fontFamily="@font/saira_condensed_medium"
                 android:foreground="?attr/selectableItemBackground"
                 android:gravity="center"

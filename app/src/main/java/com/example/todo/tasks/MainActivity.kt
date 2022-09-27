@@ -16,7 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.todo.R
 import com.example.todo.data.Task
 import com.example.todo.databinding.ActivityMainBinding
-import com.example.todo.databinding.DialogAddEditBinding
+import com.example.todo.databinding.DialogAddBinding
+import com.example.todo.databinding.DialogEditBinding
 import com.example.todo.util.onQueryTextChanged
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,10 +50,11 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                 }
             }).attachToRecyclerView(rvTasks)
 
+            //Adding tasks
             fabAddTasks.setOnClickListener {
                 val addDialog = Dialog(this@MainActivity,R.style.Theme_Dialog)
                 addDialog.setCanceledOnTouchOutside(true)
-                val addBinding= DialogAddEditBinding.inflate(layoutInflater)
+                val addBinding= DialogAddBinding.inflate(layoutInflater)
                 addDialog.setContentView(addBinding.root)
                 //addBinding?.etAddNote?.showKeyboard()
                 addBinding.tvAdd.setOnClickListener {
@@ -60,11 +62,11 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                     val taskText = addBinding.etAddNote.text.toString()
                     val importance = addBinding.checkBoxImportant.isChecked
                     if (taskText.isNotEmpty()) {
-                        lifecycleScope.launch {
+
                             viewModel.addTask(taskText,importance)
                             Toast.makeText(applicationContext, "Task added", Toast.LENGTH_SHORT).show()
                             addDialog.dismiss()
-                        }
+
                     } else {
                         Toast.makeText(applicationContext, "A task cannot be blank!", Toast.LENGTH_SHORT)
                             .show()
@@ -89,7 +91,6 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                 binding.ivNoTask.visibility = View.VISIBLE
             }
             tasksAdapter.submitList(it)
-
         }
         lifecycleScope.launchWhenStarted {
             // launchWhenStarted makes the scope smaller, because instead of getting cancelled on onDestroy()
@@ -106,19 +107,43 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                 }
             }
         }
-        //Add/Edit part
-
-
-
-
     }
 
-    //Item OnClicks
+    //Editing task
     override fun onItemClick(task: Task) {
-        //delegating work to ViewModel
-        viewModel.onTaskClicked(task)
+        val editDialog = Dialog(this,R.style.Theme_Dialog)
+        editDialog.setCanceledOnTouchOutside(true)
+        val editBinding = DialogEditBinding.inflate(layoutInflater)
+        editDialog.setContentView(editBinding.root)
+
+        editBinding.apply {
+            etAddNote.setText(task.name)
+            checkBoxImportant.isChecked = task.important
+            editBinding.created.text = task.createdDateFormatted
+        }
+
+        editBinding.tvUpdate.setOnClickListener {
+            val currentTask = editBinding.etAddNote.text.toString()
+            val importance = editBinding.checkBoxImportant.isChecked
+            if(currentTask.isNotEmpty()){
+                viewModel.editTask(task,currentTask,importance)
+                Toast.makeText(applicationContext, "Task Updated", Toast.LENGTH_SHORT).show()
+                editDialog.dismiss()
+            }else{
+                Toast.makeText(applicationContext, "A task cannot be blank!", Toast.LENGTH_SHORT)
+                .show()
+            }
+        }
+
+        editBinding.tvCancel.setOnClickListener {
+            editDialog.dismiss()
+        }
+        editDialog.show()
+
+
     }
     override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
+        //delegating work to ViewModel
         viewModel.onTaskChecked(task,isChecked)
     }
 

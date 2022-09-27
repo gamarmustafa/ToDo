@@ -65,5 +65,6 @@ class TasksAdapter(private val listener:OnItemClickListener) : ListAdapter<Task,
             return oldItem == newItem
         }
     }
+
 }
 

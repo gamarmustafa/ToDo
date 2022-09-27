@@ -1,13 +1,11 @@
 package com.example.todo.tasks
 
-import android.app.Dialog
-import android.content.Context
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.todo.data.Task
 import com.example.todo.data.TaskDao
-import com.example.todo.databinding.DialogAddEditBinding
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,9 +40,7 @@ class TasksViewModel @Inject constructor(private val taskDao: TaskDao) : ViewMod
     }
     val tasks = taskFlow.asLiveData()
 
-    //onClicks
-    fun onTaskClicked(task:Task){
-    }
+    //onClick
     fun onTaskChecked(task: Task, isChecked:Boolean){
         viewModelScope.launch {
             //if we modify old item, DiffUtil will not pick up the changes
@@ -63,6 +59,12 @@ class TasksViewModel @Inject constructor(private val taskDao: TaskDao) : ViewMod
     fun addTask(taskName:String, importance:Boolean){
         viewModelScope.launch{
             taskDao.insert(Task(name = taskName,important = importance))
+        }
+    }
+
+    fun editTask(task:Task,taskName:String,importance: Boolean){
+        viewModelScope.launch {
+            taskDao.update(task.copy(name = taskName, important = importance))
         }
     }
 
