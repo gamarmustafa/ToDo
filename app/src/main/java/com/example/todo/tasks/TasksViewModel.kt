@@ -23,11 +23,6 @@ class TasksViewModel @Inject constructor(private val taskDao: TaskDao) : ViewMod
     val sortOrder = MutableStateFlow(SortOrder.BY_DATE) //default value
     val hideCompleted = MutableStateFlow(false)   //default value
 
-    private  val tasksEventChannel = Channel<TasksEvent>()
-    //if we expose the channel,activity can put something in it
-    //that's why we convert it into flow
-    val tasksEvent = tasksEventChannel.receiveAsFlow()
-
     private val taskFlow = combine(searchQuery, sortOrder, hideCompleted) { //combine()  passes all there latest values
         query,sortOrder,hideCompleted ->
         Triple(query,sortOrder,hideCompleted)
@@ -52,7 +47,6 @@ class TasksViewModel @Inject constructor(private val taskDao: TaskDao) : ViewMod
     fun onTaskSwiped(task: Task){
         viewModelScope.launch {
             taskDao.delete(task)
-            tasksEventChannel.send(TasksEvent.ShowUndoDeleteTaskMessage(task))
         }
     }
 
@@ -68,17 +62,16 @@ class TasksViewModel @Inject constructor(private val taskDao: TaskDao) : ViewMod
         }
     }
 
-
     fun onUndoDeleteClick(task: Task){
         viewModelScope.launch{
             taskDao.insert(task)
         }
     }
-
-    sealed class TasksEvent{
-        data class ShowUndoDeleteTaskMessage(val task: Task):TasksEvent()
+    fun deleteAllTasks(){
+        viewModelScope.launch {
+            taskDao.deleteCompletedTasks()
+        }
     }
-
 }
 
 enum class SortOrder {

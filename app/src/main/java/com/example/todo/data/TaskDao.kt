@@ -20,7 +20,7 @@ interface TaskDao {
     // || is appending not OR.
     //if hideCompleted is true, show all uncompleted tasks, if it's false show all tasks
     //0 means false in SQL
-    @Query("SELECT * FROM task_table WHERE(completed != :hideCompleted OR completed = 0) AND name LIKE '%' || :searchQuery || '%' ORDER BY important DESC,name COLLATE NOCASE  ")
+    @Query("SELECT * FROM task_table WHERE(completed != :hideCompleted OR completed = 0) AND name LIKE '%' || :searchQuery || '%' ORDER BY important DESC,name COLLATE NOCASE")
     fun getTasksSortedByName(searchQuery: String, hideCompleted: Boolean): Flow<List<Task>>
 
     @Query("SELECT * FROM task_table WHERE(completed != :hideCompleted OR completed = 0) AND name LIKE '%' || :searchQuery || '%' ORDER BY important DESC, created ")
@@ -34,6 +34,9 @@ interface TaskDao {
 
     @Delete
     suspend fun delete(task: Task)
+
+    @Query("DELETE FROM task_table WHERE completed = 1")
+    suspend fun deleteCompletedTasks()
 
 
 }

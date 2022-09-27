@@ -1,7 +1,9 @@
 package com.example.todo.tasks
 
+import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -21,18 +23,21 @@ import com.example.todo.databinding.DialogEditBinding
 import com.example.todo.util.onQueryTextChanged
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
 
     val viewModel: TasksViewModel by viewModels()
+    private lateinit var searchView:SearchView
     lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val tasksAdapter = TasksAdapter(this)
+        supportActionBar?.title = "Tasks"
         binding.apply {
             rvTasks.apply {
                 adapter = tasksAdapter
@@ -47,6 +52,11 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val task = tasksAdapter.currentList[viewHolder.adapterPosition]
                     viewModel.onTaskSwiped(task)
+                    Snackbar.make(binding.root, "Task deleted",Snackbar.LENGTH_LONG)
+                        .setAction("UNDO"){
+                            //UI shouldn't handle logic part. that's why we delegate deletion to ViewModel
+                            viewModel.onUndoDeleteClick(task)
+                        }.show()
                 }
             }).attachToRecyclerView(rvTasks)
 
@@ -91,21 +101,6 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                 binding.ivNoTask.visibility = View.VISIBLE
             }
             tasksAdapter.submitList(it)
-        }
-        lifecycleScope.launchWhenStarted {
-            // launchWhenStarted makes the scope smaller, because instead of getting cancelled on onDestroy()
-            // it gets cancelled on onStopped()
-            viewModel.tasksEvent.collect{event ->
-                when(event){
-                    is TasksViewModel.TasksEvent.ShowUndoDeleteTaskMessage ->{
-                        Snackbar.make(binding.root, "Task deleted",Snackbar.LENGTH_LONG)
-                            .setAction("UNDO"){
-                                //UI shouldn't handle logic part. that's why we delegate deletion to ViewModel
-                                viewModel.onUndoDeleteClick(event.task)
-                            }.show()
-                    }
-                }
-            }
         }
     }
 
@@ -152,7 +147,14 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
         menuInflater.inflate(R.menu.menu_tasks, menu)
 
         val searchItem = menu?.findItem(R.id.action_search)
-        val searchView = searchItem?.actionView as SearchView
+        searchView = searchItem?.actionView as SearchView
+
+        val pendingQuery = viewModel.searchQuery.value
+        if(pendingQuery != null && pendingQuery.isNotEmpty()){
+            searchItem.expandActionView()
+            searchView.setQuery(pendingQuery,false )
+        } // to put the query in the search view when screen rotated
+        // when screen rotated, searchView disappears for a unknown reason
 
         searchView.onQueryTextChanged {
             //we pass query from the SearchView to ViewModel
@@ -177,12 +179,16 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                 true
             }
             R.id.action_delete_all_completed_tasks -> {
+                viewModel.deleteAllTasks()
                 true
             }
             else -> super.onOptionsItemSelected(item)
 
         }
     }
-
+    override fun onDestroy() {
+        super.onDestroy()
+        searchView.setOnQueryTextListener(null)
+    }
 
 }
