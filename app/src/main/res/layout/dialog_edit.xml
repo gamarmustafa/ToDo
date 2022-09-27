@@ -59,7 +59,7 @@
                 android:buttonTint="@drawable/check_box_color"
                 android:fontFamily="@font/saira_condensed_medium"
                 android:text="Important task"
-                android:textColor="@color/gray"
+                android:textColor="@android:color/darker_gray"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.55"

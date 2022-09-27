@@ -5,6 +5,8 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowMinWidthMinor">99%</item>
     </style>
-
-
+    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">28sp</item>
+        <item name="fontFamily">@font/saira_condensed_medium</item>
+    </style>
 </resources>

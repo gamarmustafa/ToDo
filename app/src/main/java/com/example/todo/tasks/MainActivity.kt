@@ -1,17 +1,19 @@
 package com.example.todo.tasks
 
-import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.lifecycleScope
+import androidx.core.content.ContextCompat
+import androidx.core.os.HandlerCompat.postDelayed
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,8 +25,6 @@ import com.example.todo.databinding.DialogEditBinding
 import com.example.todo.util.onQueryTextChanged
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
@@ -36,8 +36,10 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setSupportActionBar(binding.toolbar)//setting up the toolbar
+
         val tasksAdapter = TasksAdapter(this)
-        supportActionBar?.title = "Tasks"
         binding.apply {
             rvTasks.apply {
                 adapter = tasksAdapter
@@ -53,6 +55,8 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                     val task = tasksAdapter.currentList[viewHolder.adapterPosition]
                     viewModel.onTaskSwiped(task)
                     Snackbar.make(binding.root, "Task deleted",Snackbar.LENGTH_LONG)
+                        .setBackgroundTint(ContextCompat.getColor(this@MainActivity,R.color.dark_gray))
+                        .setActionTextColor(ContextCompat.getColor(this@MainActivity,R.color.red))
                         .setAction("UNDO"){
                             //UI shouldn't handle logic part. that's why we delegate deletion to ViewModel
                             viewModel.onUndoDeleteClick(task)
@@ -66,7 +70,7 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
                 addDialog.setCanceledOnTouchOutside(true)
                 val addBinding= DialogAddBinding.inflate(layoutInflater)
                 addDialog.setContentView(addBinding.root)
-                //addBinding?.etAddNote?.showKeyboard()
+                showKeyboard(addBinding.etAddNote)
                 addBinding.tvAdd.setOnClickListener {
 
                     val taskText = addBinding.etAddNote.text.toString()
@@ -110,7 +114,7 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
         editDialog.setCanceledOnTouchOutside(true)
         val editBinding = DialogEditBinding.inflate(layoutInflater)
         editDialog.setContentView(editBinding.root)
-
+        showKeyboard(editBinding.etAddNote)
         editBinding.apply {
             etAddNote.setText(task.name)
             checkBoxImportant.isChecked = task.important
@@ -152,6 +156,7 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
         val pendingQuery = viewModel.searchQuery.value
         if(pendingQuery != null && pendingQuery.isNotEmpty()){
             searchItem.expandActionView()
+
             searchView.setQuery(pendingQuery,false )
         } // to put the query in the search view when screen rotated
         // when screen rotated, searchView disappears for a unknown reason
@@ -185,6 +190,15 @@ class MainActivity : AppCompatActivity(),TasksAdapter.OnItemClickListener {
             else -> super.onOptionsItemSelected(item)
 
         }
+    }
+
+    fun showKeyboard(view:EditText){ //to open keyboard automatically
+        view.postDelayed({
+            view.requestFocus()
+            val imm = applicationContext.getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+            view.setSelection(view.length()) //to put the cursor at the end when this function called from edit dialog
+        }, 100)
     }
     override fun onDestroy() {
         super.onDestroy()
